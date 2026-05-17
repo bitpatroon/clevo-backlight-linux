@@ -18,8 +18,8 @@ sudo python3 clevo_backlight.py brightness 128          # helderheid (0-255)
 sudo python3 clevo_backlight.py key W 255 0 0           # één toets op kleur (naam of index)
 sudo python3 clevo_backlight.py zone gaming green       # zone op voorinstelling
 sudo python3 clevo_backlight.py zone left 255 128 0     # zone op RGB
-sudo python3 clevo_backlight.py animate rainbow         # animatie toepassen
-sudo python3 clevo_backlight.py reload                  # herstel laatste opgeslagen state
+sudo python3 clevo_backlight.py animate rainbow          # animatie starten (zie ## Animaties)
+sudo python3 clevo_backlight.py reload                   # herstel laatste opgeslagen state
 sudo python3 clevo_backlight.py --dev /dev/hidraw5 color green  # ander device
 ```
 
@@ -43,6 +43,52 @@ Vlagkleuren zijn opgeslagen als zones in `flags.json` (ISO 3166-1 alpha-2 codes)
 | Noord-Amerika | `ag` `bb` `bs` `bz` `ca` `cr` `cu` `dm` `do` `gd` `gt` `hn` `ht` `jm` `kn` `lc` `mx` `ni` `pa` `sv` `tt` `us` `vc` |
 
 De staat wordt opgeslagen als zone-configuratie, zodat `reload` de vlag herstelt.
+
+## Animaties
+
+Animaties worden in één stap per aanroep bijgezet. Eénmalig aanroepen zet één frame; de [animatie-daemon](#animatie-daemon) roept dit automatisch herhaaldelijk aan.
+
+```bash
+sudo python3 clevo_backlight.py animate rainbow          # één stap vooruit
+sudo python3 clevo_backlight.py animate rainbow --reverse  # één stap achteruit
+sudo python3 clevo_backlight.py animate                  # volgende stap van huidige animatie
+sudo python3 clevo_backlight.py animate --reverse        # richting omdraaien
+```
+
+De richting (`--reverse`) wordt opgeslagen en blijft actief totdat je hem expliciet wijzigt — de daemon hoeft niets te weten van de richting.
+
+### Beschikbare animaties
+
+| Naam | Omschrijving |
+|---|---|
+| `rainbow` | Horizontale regenboog: elke kolom krijgt een andere tint uit het HSV-spectrum. De kleuren verschuiven één kolom per stap. |
+| `wave` | Sinusgolf van helderheid over de kolommen. De basiskleur wordt overgenomen van de staat op het moment dat de animatie start (stel in met `solid` of `color`). |
+| `matrix` | Vallende groene druppels, één per kolom. Elke druppel heeft een eigen willekeurige snelheid. Kop is helder wit-groen, staart vervaagt naar donkergroen. `--reverse` laat de druppels omhoog bewegen. |
+
+### Basiskleur instellen voor wave
+
+`wave` gebruikt de kleur die actief was vóór de animatie startte:
+
+```bash
+sudo python3 clevo_backlight.py solid 255 50 0   # oranje instellen
+sudo python3 clevo_backlight.py animate wave      # oranje sinusgolf
+```
+
+### Animatie stoppen
+
+```bash
+sudo python3 clevo_backlight.py off     # stopt animatie en zet backlight uit
+sudo python3 clevo_backlight.py solid 0 0 255  # stopt animatie, alles blauw
+```
+
+### Nieuwe animatie toevoegen
+
+1. Schrijf een functie `apply_<naam>(fd, params=None)` in `clevo_backlight.py`
+2. Voeg `'<naam>': apply_<naam>` toe aan de `ANIMATIONS`-dict
+
+De functie ontvangt `params` met minimaal `phase` (float 0–1, stap 1/20 per aanroep) en `step` (richting: +1/20 of −1/20). Voor `wave` bevat `params` ook `color`.
+
+---
 
 ## Animatie-daemon
 

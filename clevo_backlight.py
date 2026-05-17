@@ -10,7 +10,7 @@ Usage:
   clevo_backlight.py key <naam|idx> <R> <G> <B>    # één toets op kleur
   clevo_backlight.py zone <zone> <naam|R> [G B]    # zone op kleur (left/middle/right)
   clevo_backlight.py flag <landcode>                  # vlagkleuren (bijv. nl, de, fr, us — zie flags.json)
-  clevo_backlight.py animate [<naam>]                # animatie toepassen; zonder naam: volgende stap van huidige animatie
+  clevo_backlight.py animate [<naam>] [--reverse]    # animatie toepassen; --reverse voor achterwaartse richting
   clevo_backlight.py reload                         # herstel laatste opgeslagen state
 
 Optie:
@@ -23,7 +23,7 @@ Key-namen staan in mapping.json, zones in zones.json (zie README-keymappings.md)
 Het commit-byte van de ITE-chip werkt alleen als aan/uit-schakelaar (0=uit, 0xFF=aan).
 Dimmen werkt door de RGB-waarden te schalen met het brightness-niveau.
 """
-import fcntl, sys, os, json, colorsys
+import fcntl, sys, os, json, colorsys, math, random
 
 HIDRAW_DEFAULT = '/dev/hidraw4'
 SCRIPT_DIR     = os.path.dirname(os.path.abspath(__file__))
@@ -84,8 +84,61 @@ def apply_rainbow(fd, params=None):
         set_key(fd, i, int(r * 255), int(g * 255), int(b * 255))
     commit(fd)
 
+def apply_wave(fd, params=None):
+    # Sinusgolf van helderheid over de kolommen; één volledige cyclus per 20 kolommen
+    params = params or {}
+    phase = params.get('phase', 0.0)
+    r0, g0, b0 = params.get('color', [0, 120, 255])
+    for i in range(NUM_KEYS):
+        col = i % 32
+        brightness = (1 + math.sin(2 * math.pi * (col / 20.0 + phase))) / 2
+        set_key(fd, i, int(r0 * brightness), int(g0 * brightness), int(b0 * brightness))
+    commit(fd)
+
+def apply_matrix(fd, params=None):
+    params    = params or {}
+    NUM_COLS  = 20
+    NUM_ROWS  = 6
+    TAIL      = 3   # staartlengte in rijen
+
+    if 'drops' not in params:
+        params['drops'] = [
+            {'pos': random.uniform(-TAIL, NUM_ROWS - 1), 'speed': random.uniform(0.15, 0.5)}
+            for _ in range(NUM_COLS)
+        ]
+
+    drops     = params['drops']
+    direction = 1 if params.get('step', 1 / 20) >= 0 else -1
+
+    for drop in drops:
+        drop['pos'] += direction * drop['speed']
+        if direction > 0 and drop['pos'] > NUM_ROWS - 1 + TAIL:
+            drop['pos']   = random.uniform(-TAIL, 0)
+            drop['speed'] = random.uniform(0.15, 0.5)
+        elif direction < 0 and drop['pos'] < -TAIL:
+            drop['pos']   = random.uniform(NUM_ROWS - 1, NUM_ROWS - 1 + TAIL)
+            drop['speed'] = random.uniform(0.15, 0.5)
+
+    for i in range(NUM_KEYS):
+        col = i % 32
+        row = i // 32
+        if col >= NUM_COLS:
+            set_key(fd, i, 0, 0, 0)
+            continue
+        dist = direction * (drops[col]['pos'] - row)
+        if dist < 0 or dist > TAIL:
+            set_key(fd, i, 0, 0, 0)
+        elif dist < 0.5:
+            set_key(fd, i, 180, 255, 180)           # kop: helder wit-groen
+        else:
+            fade = 1 - (dist / TAIL)
+            set_key(fd, i, 0, int(220 * fade), 0)  # staart: vervagend groen
+    commit(fd)
+
 ANIMATIONS = {
     'rainbow': apply_rainbow,
+    'wave':    apply_wave,
+    'matrix':  apply_matrix,
 }
 
 # --- State ---------------------------------------------------------------
@@ -312,19 +365,27 @@ def main():
 
         elif cmd == 'animate':
             state = load_state()
-            if len(args) == 1:
+            reverse = '--reverse' in args
+            anim_args = [a for a in args if a != '--reverse']
+            if len(anim_args) == 1:
                 name = state.get('preset')
                 if name not in ANIMATIONS:
                     print(f"Geen actieve animatie. Gebruik: animate <naam>. Kies uit: {', '.join(ANIMATIONS)}")
                     sys.exit(1)
-            elif args[1] not in ANIMATIONS:
+            elif anim_args[1] not in ANIMATIONS:
                 print(f"Onbekende animatie. Kies uit: {', '.join(ANIMATIONS)}")
                 sys.exit(1)
             else:
-                name = args[1]
-            params = state.get('preset_params', {}) if state.get('preset') == name else {}
-            params = dict(params)
-            params['phase'] = (params.get('phase', 0.0) + 1 / 20) % 1.0
+                name = anim_args[1]
+            if state.get('preset') == name:
+                params = dict(state.get('preset_params', {}))
+            else:
+                params = {'color': state.get('color', [0, 120, 255])}
+            if reverse:
+                params['step'] = -1 / 20
+            else:
+                params.setdefault('step', 1 / 20)
+            params['phase'] = (params.get('phase', 0.0) + params['step']) % 1.0
             ANIMATIONS[name](fd, params)
             state['color'] = [0, 0, 0]
             state['keys'] = {}
