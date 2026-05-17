@@ -9,6 +9,7 @@ Usage:
   clevo_backlight.py brightness <0-255>             # helderheid (schaalt de RGB-waarden)
   clevo_backlight.py key <naam|idx> <R> <G> <B>    # één toets op kleur
   clevo_backlight.py zone <zone> <naam|R> [G B]    # zone op kleur (left/middle/right)
+  clevo_backlight.py reload                         # herstel laatste opgeslagen state
 
 Optie:
   --dev /dev/hidrawN   HID device (default: /dev/hidraw4)
@@ -162,6 +163,8 @@ def main():
             r, g, b = int(args[1]), int(args[2]), int(args[3])
             state = load_state()
             state['color'] = [r, g, b]
+            state['keys'] = {}
+            state['zones'] = {}
             save_state(state)
             set_all(fd, r, g, b)
 
@@ -172,11 +175,18 @@ def main():
             r, g, b = COLORS[args[1]]
             state = load_state()
             state['color'] = [r, g, b]
+            state['keys'] = {}
+            state['zones'] = {}
             save_state(state)
             set_all(fd, r, g, b)
 
         elif cmd == 'off':
             set_all(fd, 0, 0, 0, on=False)
+            state = load_state()
+            state['color'] = [0, 0, 0]
+            state['keys'] = {}
+            state['zones'] = {}
+            save_state(state)
 
         elif cmd == 'brightness':
             if len(args) != 2:
@@ -234,6 +244,26 @@ def main():
             state = load_state()
             state['zones'][zone_name] = [r, g, b]
             save_state(state)
+
+        elif cmd == 'reload':
+            state = load_state()
+            mapping = load_mapping()
+            zones = load_zones()
+            r, g, b = state['color']
+            factor = state['brightness'] / 255.0
+            br, bg, bb = int(r * factor), int(g * factor), int(b * factor)
+            for i in range(NUM_KEYS):
+                set_key(fd, i, br, bg, bb)
+            for zone_name, (zr, zg, zb) in state.get('zones', {}).items():
+                if zone_name not in zones:
+                    continue
+                for key_name in zones[zone_name]:
+                    for idx in mapping.get(key_name.upper(), []):
+                        set_key(fd, idx, zr, zg, zb)
+            for key_name, (kr, kg, kb) in state.get('keys', {}).items():
+                for idx in mapping.get(key_name.upper(), []):
+                    set_key(fd, idx, kr, kg, kb)
+            commit(fd)
 
         else:
             print(f"Onbekend commando: {cmd}")

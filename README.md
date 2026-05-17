@@ -18,6 +18,7 @@ sudo python3 clevo_backlight.py brightness 128          # helderheid (0-255)
 sudo python3 clevo_backlight.py key W 255 0 0           # één toets op kleur (naam of index)
 sudo python3 clevo_backlight.py zone gaming green       # zone op voorinstelling
 sudo python3 clevo_backlight.py zone left 255 128 0     # zone op RGB
+sudo python3 clevo_backlight.py reload                  # herstel laatste opgeslagen state
 sudo python3 clevo_backlight.py --dev /dev/hidraw5 color green  # ander device
 ```
 
