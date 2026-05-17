@@ -9,6 +9,7 @@ Usage:
   clevo_backlight.py brightness <0-255>             # helderheid (schaalt de RGB-waarden)
   clevo_backlight.py key <naam|idx> <R> <G> <B>    # één toets op kleur
   clevo_backlight.py zone <zone> <naam|R> [G B]    # zone op kleur (left/middle/right)
+  clevo_backlight.py flag <landcode>                  # vlagkleuren (bijv. nl, de, fr, us — zie flags.json)
   clevo_backlight.py animate [<naam>]                # animatie toepassen; zonder naam: volgende stap van huidige animatie
   clevo_backlight.py reload                         # herstel laatste opgeslagen state
 
@@ -29,6 +30,7 @@ SCRIPT_DIR     = os.path.dirname(os.path.abspath(__file__))
 STATE_FILE     = os.path.join(SCRIPT_DIR, 'clevo_backlight.json')
 MAPPING_FILE   = os.path.join(SCRIPT_DIR, 'mapping.json')
 ZONES_FILE     = os.path.join(SCRIPT_DIR, 'zones.json')
+FLAGS_FILE     = os.path.join(SCRIPT_DIR, 'flags.json')
 NUM_KEYS       = 192   # indices 0-191 dekken alle fysieke toetsen
 
 COLORS = {
@@ -128,6 +130,17 @@ def load_zones():
         return {}
     except Exception as e:
         print(f"Waarschuwing: kan zones.json niet lezen: {e}", file=sys.stderr)
+        return {}
+
+def load_flags():
+    try:
+        with open(FLAGS_FILE) as f:
+            data = json.load(f)
+        return {k: v for k, v in data.items() if not k.startswith('_')}
+    except FileNotFoundError:
+        return {}
+    except Exception as e:
+        print(f"Waarschuwing: kan flags.json niet lezen: {e}", file=sys.stderr)
         return {}
 
 def resolve_key(key_arg, mapping):
@@ -266,6 +279,35 @@ def main():
             commit(fd)
             state = load_state()
             state['zones'][zone_name] = [r, g, b]
+            save_state(state)
+
+        elif cmd == 'flag':
+            if len(args) != 2:
+                print("Gebruik: flag <landcode>  (bijv. flag nl, flag de, flag us)")
+                sys.exit(1)
+            code = args[1].lower()
+            flags = load_flags()
+            if not flags:
+                print("Fout: flags.json niet gevonden.")
+                sys.exit(1)
+            if code not in flags:
+                print(f"Onbekende landcode '{code}'. Beschikbaar: {', '.join(sorted(flags))}")
+                sys.exit(1)
+            mapping = load_mapping()
+            zones_data = load_zones()
+            flag_zones = flags[code]['zones']
+            for zone_name, color in flag_zones.items():
+                r, g, b = color
+                for key_name in zones_data.get(zone_name, []):
+                    for idx in mapping.get(key_name.upper(), []):
+                        set_key(fd, idx, r, g, b)
+            commit(fd)
+            state = load_state()
+            state['color'] = [0, 0, 0]
+            state['keys'] = {}
+            state['zones'] = {z: list(c) for z, c in flag_zones.items()}
+            state['preset'] = None
+            state['preset_params'] = {}
             save_state(state)
 
         elif cmd == 'animate':

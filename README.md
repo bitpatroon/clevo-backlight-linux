@@ -25,6 +25,25 @@ sudo python3 clevo_backlight.py --dev /dev/hidraw5 color green  # ander device
 
 **Voorinstelling kleuren:** `red`, `green`, `blue`, `white`, `yellow`, `cyan`, `magenta`, `orange`, `purple`
 
+## Vlagkleuren
+
+```bash
+sudo python3 clevo_backlight.py flag nl   # Nederlandse vlag
+sudo python3 clevo_backlight.py flag de   # Duitse vlag
+sudo python3 clevo_backlight.py flag us   # Amerikaanse vlag
+```
+
+Vlagkleuren zijn opgeslagen als zones in `flags.json` (ISO 3166-1 alpha-2 codes). Horizontale vlaggen gebruiken `row1`–`row6`, verticale vlaggen `left`/`middle`/`right`. Complexe vlaggen (kruis, wapen) zijn vereenvoudigd tot de dominante kleuren.
+
+**Beschikbare landen (73):**
+
+| Regio | Codes |
+|---|---|
+| Europa | `al` `ad` `am` `at` `az` `ba` `be` `bg` `by` `ch` `cy` `cz` `de` `dk` `ee` `es` `fi` `fr` `gb` `ge` `gr` `hr` `hu` `ie` `is` `it` `li` `lt` `lu` `lv` `mc` `md` `me` `mk` `mt` `nl` `no` `pl` `pt` `ro` `rs` `ru` `se` `si` `sk` `sm` `tr` `ua` `va` `xk` |
+| Noord-Amerika | `ag` `bb` `bs` `bz` `ca` `cr` `cu` `dm` `do` `gd` `gt` `hn` `ht` `jm` `kn` `lc` `mx` `ni` `pa` `sv` `tt` `us` `vc` |
+
+De staat wordt opgeslagen als zone-configuratie, zodat `reload` de vlag herstelt.
+
 ## Animatie-daemon
 
 `clevo_animate.py` roept automatisch `animate` aan met een vaste interval. Hij loopt alleen door als er een actieve animatie in de state staat — bij `off`, `solid` of `color` pauzeert hij vanzelf.
