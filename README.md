@@ -11,14 +11,41 @@ On the X370SNx, keyboard backlight is controlled by an ITE 8297 chip connected v
 ## Usage
 
 ```bash
-sudo python3 clevo_backlight.py solid 255 0 0       # alle toetsen rood (R G B, 0-255)
-sudo python3 clevo_backlight.py color blue           # voorinstelling
-sudo python3 clevo_backlight.py off                  # backlight uit
-sudo python3 clevo_backlight.py brightness 128       # helderheid (0-255)
+sudo python3 clevo_backlight.py solid 255 0 0           # alle toetsen één kleur (R G B)
+sudo python3 clevo_backlight.py color blue              # voorinstelling
+sudo python3 clevo_backlight.py off                     # backlight uit
+sudo python3 clevo_backlight.py brightness 128          # helderheid (0-255)
+sudo python3 clevo_backlight.py key W 255 0 0           # één toets op kleur (naam of index)
+sudo python3 clevo_backlight.py zone gaming green       # zone op voorinstelling
+sudo python3 clevo_backlight.py zone left 255 128 0     # zone op RGB
 sudo python3 clevo_backlight.py --dev /dev/hidraw5 color green  # ander device
 ```
 
 **Voorinstelling kleuren:** `red`, `green`, `blue`, `white`, `yellow`, `cyan`, `magenta`, `orange`, `purple`
+
+## Shell-aliassen
+
+Voeg dit toe aan `~/.bashrc` of `~/.zshrc` voor snelle toegang:
+
+```bash
+CLEVO="sudo python3 /pad/naar/clevo_backlight.py"
+
+alias backlight-off="$CLEVO off"
+alias backlight-white="$CLEVO color white"
+
+alias gaming-red="$CLEVO zone gaming red"
+alias gaming-green="$CLEVO zone gaming green"
+alias gaming-blue="$CLEVO zone gaming blue"
+alias gaming-white="$CLEVO zone gaming white"
+
+alias left-red="$CLEVO zone left red"
+alias left-green="$CLEVO zone left green"
+
+alias numpad-cyan="$CLEVO zone numpad cyan"
+alias numpad-off="$CLEVO zone numpad 0 0 0"
+```
+
+Herlaad daarna je shell: `source ~/.bashrc`
 
 ## HID-device vinden
 
