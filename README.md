@@ -49,10 +49,11 @@ De staat wordt opgeslagen als zone-configuratie, zodat `reload` de vlag herstelt
 Animaties worden in één stap per aanroep bijgezet. Eénmalig aanroepen zet één frame; de [animatie-daemon](#animatie-daemon) roept dit automatisch herhaaldelijk aan.
 
 ```bash
-sudo python3 clevo_backlight.py animate rainbow          # één stap vooruit
-sudo python3 clevo_backlight.py animate rainbow --reverse  # één stap achteruit
-sudo python3 clevo_backlight.py animate                  # volgende stap van huidige animatie
-sudo python3 clevo_backlight.py animate --reverse        # richting omdraaien
+sudo python3 clevo_backlight.py animate rainbow              # één stap vooruit
+sudo python3 clevo_backlight.py animate rainbow --reverse    # één stap achteruit
+sudo python3 clevo_backlight.py animate                      # volgende stap van huidige animatie
+sudo python3 clevo_backlight.py animate --reverse            # richting omdraaien
+sudo python3 clevo_backlight.py animate ticker "HALLO!"      # ticker met eigen tekst
 ```
 
 De richting (`--reverse`) wordt opgeslagen en blijft actief totdat je hem expliciet wijzigt — de daemon hoeft niets te weten van de richting.
@@ -65,6 +66,7 @@ De richting (`--reverse`) wordt opgeslagen en blijft actief totdat je hem explic
 | `wave` | Sinusgolf van helderheid over de kolommen. De basiskleur wordt overgenomen van de staat op het moment dat de animatie start (stel in met `solid` of `color`). |
 | `matrix` | Vallende groene druppels, één per kolom. Elke druppel heeft een eigen willekeurige snelheid. Kop is helder wit-groen, staart vervaagt naar donkergroen. `--reverse` laat de druppels omhoog bewegen. |
 | `pong` | Pong-simulatie over het volledige toetsenbord (20×6). Cyaanblauw batje links (kolom 0), oranje batje rechts (kolom 19), wit balletje. Beide batjes worden bestuurd door een AI die de bal volgt met beperkte snelheid. Het balletje kaatst af op de wanden en batjes; de hoek verandert afhankelijk van het raakpunt. |
+| `ticker` | Scrollende tekstbalk (van rechts naar links) in een 3×5 pixel font. Standaardtekst: `CLEVO`. Tekstkleur is gebaseerd op de actieve kleur op het moment dat de animatie start. Rij 5 (onderste rij) blijft donker als baseline. |
 
 ### Basiskleur instellen voor wave
 
@@ -98,7 +100,7 @@ De functie ontvangt `params` met minimaal `phase` (float 0–1, stap 1/20 per aa
 ```bash
 sudo python3 clevo_animate.py                       # standaard 200ms per stap
 sudo python3 clevo_animate.py --interval 500        # 500ms per stap
-sudo python3 clevo_animate.py --idle-timeout 180    # idle-timeout in seconden (standaard: 180)
+sudo python3 clevo_animate.py --idle-timeout 60     # idle-timeout in seconden (standaard: 60)
 sudo python3 clevo_animate.py --idle-timeout 0      # idle-timeout uitschakelen
 sudo python3 clevo_animate.py --dev /dev/hidrawN
 ```
@@ -106,7 +108,7 @@ sudo python3 clevo_animate.py --dev /dev/hidrawN
 ### Als systemd-service
 
 ```bash
-sudo bash install.sh                                        # standaard 200ms, 3 min idle
+sudo bash install.sh                                        # standaard 200ms, 1 min idle
 sudo bash install.sh --interval 300                         # andere interval
 sudo bash install.sh --idle-timeout 300                     # 5 minuten idle-timeout
 sudo bash install.sh --idle-timeout 0                       # idle-timeout uitschakelen

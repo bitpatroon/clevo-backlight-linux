@@ -11,7 +11,8 @@ Usage:
   clevo_backlight.py zone <zone> <naam|R> [G B]    # zone op kleur (left/middle/right)
   clevo_backlight.py flag <landcode>                  # vlagkleuren (bijv. nl, de, fr, us — zie flags.json)
   clevo_backlight.py animate [<naam>] [--reverse]    # animatie toepassen; --reverse voor achterwaartse richting
-                                                     # namen: rainbow, wave, matrix, pong
+                                                     # namen: rainbow, wave, matrix, pong, ticker
+  clevo_backlight.py animate ticker "MIJN TEKST"    # tekst voor de ticker instellen (A-Z, 0-9)
   clevo_backlight.py reload                         # herstel laatste opgeslagen state
 
 Optie:
@@ -48,7 +49,7 @@ COLORS = {
 
 DEFAULT_STATE = {
     'color':         [0, 0, 255],
-    'brightness':    255,
+    'brightness':    128,
     'default_color': [0, 0, 255],
     'keys':          {},
     'zones':         {},
@@ -74,6 +75,65 @@ def set_all(fd, r, g, b, on=True):
     for i in range(NUM_KEYS):
         set_key(fd, i, r, g, b)
     commit(fd, on)
+
+def _build_ticker_font():
+    # 3-wide × 5-tall pixel font; 'X'=lit, ' '=dark; bit2=left col, bit0=right col
+    _g = {
+        ' ': ['   ','   ','   ','   ','   '],
+        '!': [' X ',' X ',' X ','   ',' X '],
+        '?': ['XX ','  X',' X ','   ',' X '],
+        '-': ['   ','   ','XXX','   ','   '],
+        '.': ['   ','   ','   ','   ',' X '],
+        ':': ['   ',' X ','   ',' X ','   '],
+        '<': ['  X',' X ','X  ',' X ','  X'],
+        '>': ['X  ',' X ','  X',' X ','X  '],
+        'A': [' X ','X X','XXX','X X','X X'],
+        'B': ['XX ','X X','XX ','X X','XX '],
+        'C': [' XX','X  ','X  ','X  ',' XX'],
+        'D': ['XX ','X X','X X','X X','XX '],
+        'E': ['XXX','X  ','XX ','X  ','XXX'],
+        'F': ['XXX','X  ','XX ','X  ','X  '],
+        'G': [' XX','X  ','X X','XXX',' XX'],
+        'H': ['X X','X X','XXX','X X','X X'],
+        'I': ['XXX',' X ',' X ',' X ','XXX'],
+        'J': [' XX','  X','  X','X X',' X '],
+        'K': ['X X','X X','XX ','X X','X X'],
+        'L': ['X  ','X  ','X  ','X  ','XXX'],
+        'M': ['X X','XXX','X X','X X','X X'],
+        'N': ['X X','XXX','XXX','X X','X X'],
+        'O': [' X ','X X','X X','X X',' X '],
+        'P': ['XX ','X X','XX ','X  ','X  '],
+        'Q': [' X ','X X','X X','XX ',' XX'],
+        'R': ['XX ','X X','XX ','X X','X X'],
+        'S': [' XX','X  ',' X ','  X','XX '],
+        'T': ['XXX',' X ',' X ',' X ',' X '],
+        'U': ['X X','X X','X X','X X',' X '],
+        'V': ['X X','X X','X X',' X ',' X '],
+        'W': ['X X','X X','X X','XXX',' X '],
+        'X': ['X X','X X',' X ','X X','X X'],
+        'Y': ['X X','X X',' X ',' X ',' X '],
+        'Z': ['XXX','  X',' X ','X  ','XXX'],
+        '0': [' X ','X X','X X','X X',' X '],
+        '1': [' X ','XX ',' X ',' X ','XXX'],
+        '2': ['XX ','  X',' X ','X  ','XXX'],
+        '3': ['XX ','  X',' X ','  X','XX '],
+        '4': ['X X','X X','XXX','  X','  X'],
+        '5': ['XXX','X  ','XX ','  X','XX '],
+        '6': [' X ','X  ','XX ','X X',' X '],
+        '7': ['XXX','  X',' X ',' X ',' X '],
+        '8': [' X ','X X',' X ','X X',' X '],
+        '9': [' X ','X X',' XX','  X',' X '],
+    }
+    return {
+        ch: tuple(
+            sum((1 if c == 'X' else 0) << (2 - j) for j, c in enumerate(row))
+            for row in rows
+        )
+        for ch, rows in _g.items()
+    }
+
+TICKER_FONT = _build_ticker_font()
+
 
 def apply_rainbow(fd, params=None):
     # Kolompositie = index % 32 (0-19 zijn zichtbare toetsen per rij)
@@ -230,11 +290,54 @@ def apply_pong(fd, params=None):
     commit(fd)
 
 
+def apply_ticker(fd, params=None):
+    params    = params or {}
+    COLS      = 20
+    CHAR_W    = 3     # letterbreedtes in kolommen
+    GAP       = 1     # lege kolom tussen letters
+
+    text      = params.get('text', 'CLEVO  ').upper()
+    r0, g0, b0 = params.get('color', [255, 200, 50])
+    slot      = CHAR_W + GAP
+    total     = len(text) * slot
+    if total == 0:
+        commit(fd)
+        return
+
+    offset = int(params.get('offset', 0))
+
+    for i in range(NUM_KEYS):
+        col = i % 32
+        row = i // 32
+        if col >= COLS:
+            set_key(fd, i, 0, 0, 0)
+            continue
+
+        lit = False
+        if row < 5:    # rij 5 (onderste rij) blijft donker als baseline
+            buf_col  = (offset + col) % total
+            char_idx = buf_col // slot
+            char_col = buf_col % slot
+            if char_col < CHAR_W:
+                ch    = text[char_idx]
+                glyph = TICKER_FONT.get(ch, TICKER_FONT[' '])
+                if (glyph[row] >> (CHAR_W - 1 - char_col)) & 1:
+                    lit = True
+
+        set_key(fd, i, r0 if lit else 0, g0 if lit else 0, b0 if lit else 0)
+
+    commit(fd)
+
+    direction = 1 if params.get('step', 1 / 20) >= 0 else -1
+    params['offset'] = (offset + direction) % total
+
+
 ANIMATIONS = {
     'rainbow': apply_rainbow,
     'wave':    apply_wave,
     'matrix':  apply_matrix,
     'pong':    apply_pong,
+    'ticker':  apply_ticker,
 }
 
 # --- State ---------------------------------------------------------------
@@ -477,6 +580,8 @@ def main():
                 params = dict(state.get('preset_params', {}))
             else:
                 params = {'color': state.get('color', [0, 120, 255])}
+            if len(anim_args) >= 3:
+                params['text'] = ' '.join(anim_args[2:])
             if reverse:
                 params['step'] = -1 / 20
             else:

@@ -5,7 +5,7 @@ SERVICE_NAME="clevo-animate"
 SERVICE_FILE="/etc/systemd/system/${SERVICE_NAME}.service"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 INTERVAL=200
-IDLE_TIMEOUT=180
+IDLE_TIMEOUT=60
 DEV=""
 
 if [[ $EUID -ne 0 ]]; then

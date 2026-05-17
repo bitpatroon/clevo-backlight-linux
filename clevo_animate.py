@@ -18,7 +18,7 @@ SCRIPT_DIR       = os.path.dirname(os.path.abspath(__file__))
 STATE_FILE       = os.path.join(SCRIPT_DIR, 'clevo_backlight.json')
 BACKLIGHT        = os.path.join(SCRIPT_DIR, 'clevo_backlight.py')
 DEFAULT_MS       = 200
-DEFAULT_IDLE_S   = 180
+DEFAULT_IDLE_S   = 60
 INPUT_EVENT_SIZE = 24  # 64-bit Linux: timeval(8+8) + type(2) + code(2) + value(4)
 
 def active_preset():
