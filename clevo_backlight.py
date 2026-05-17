@@ -394,6 +394,11 @@ def main():
             state['preset_params'] = params
             save_state(state)
 
+        elif cmd == 'idle-off':
+            for i in range(NUM_KEYS):
+                set_key(fd, i, 0, 0, 0)
+            commit(fd, on=False)
+
         elif cmd == 'reload':
             state = load_state()
             if state.get('preset') in ANIMATIONS:
