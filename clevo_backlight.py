@@ -11,6 +11,7 @@ Usage:
   clevo_backlight.py zone <zone> <naam|R> [G B]    # zone op kleur (left/middle/right)
   clevo_backlight.py flag <landcode>                  # vlagkleuren (bijv. nl, de, fr, us — zie flags.json)
   clevo_backlight.py animate [<naam>] [--reverse]    # animatie toepassen; --reverse voor achterwaartse richting
+                                                     # namen: rainbow, wave, matrix, pong
   clevo_backlight.py reload                         # herstel laatste opgeslagen state
 
 Optie:
@@ -135,10 +136,105 @@ def apply_matrix(fd, params=None):
             set_key(fd, i, 0, int(220 * fade), 0)  # staart: vervagend groen
     commit(fd)
 
+def apply_pong(fd, params=None):
+    params    = params or {}
+    COLS      = 20
+    ROWS      = 6
+    PAD_L     = 0       # linker batje: kolom 0
+    PAD_R     = 19      # rechter batje: kolom 19
+    BALL_SPD  = 0.45    # horizontale snelheid (kolommen/frame)
+    PAD_SPD   = 0.30    # max AI-snelheid (rijen/frame)
+
+    if 'ball_x' not in params:
+        params.update({
+            'ball_x':  COLS / 2.0,
+            'ball_y':  ROWS / 2.0,
+            'ball_dx': BALL_SPD * random.choice([-1, 1]),
+            'ball_dy': BALL_SPD * 0.6 * random.choice([-1, 1]),
+            'left_y':  ROWS / 2.0,
+            'right_y': ROWS / 2.0,
+        })
+
+    bx  = params['ball_x']
+    by  = params['ball_y']
+    bdx = params['ball_dx']
+    bdy = params['ball_dy']
+    ly  = params['left_y']
+    ry  = params['right_y']
+
+    bx += bdx
+    by += bdy
+
+    # Wanden boven/onder
+    if by < 0:
+        by  = -by
+        bdy = abs(bdy)
+    elif by > ROWS - 1:
+        by  = 2 * (ROWS - 1) - by
+        bdy = -abs(bdy)
+
+    # AI: beide batjes volgen de bal met beperkte snelheid
+    for side in ('L', 'R'):
+        cy   = ly if side == 'L' else ry
+        diff = by - cy
+        cy  += math.copysign(min(abs(diff), PAD_SPD), diff) if diff else 0
+        cy   = max(1.0, min(ROWS - 2.0, cy))
+        if side == 'L':
+            ly = cy
+        else:
+            ry = cy
+
+    # Stuiter links
+    if bdx < 0 and bx < PAD_L + 1.0:
+        if abs(by - ly) < 1.5:
+            bdx  =  abs(bdx)
+            bx   = PAD_L + 1.0
+            bdy += (by - ly) * 0.2      # hoek afhankelijk van raakpunt
+        else:
+            bx, by   = COLS / 2.0, ROWS / 2.0
+            bdx, bdy = BALL_SPD, BALL_SPD * 0.6
+
+    # Stuiter rechts
+    if bdx > 0 and bx > PAD_R - 1.0:
+        if abs(by - ry) < 1.5:
+            bdx  = -abs(bdx)
+            bx   = PAD_R - 1.0
+            bdy += (by - ry) * 0.2
+        else:
+            bx, by   = COLS / 2.0, ROWS / 2.0
+            bdx, bdy = -BALL_SPD, BALL_SPD * 0.6
+
+    # Begrenzen: verticale snelheid nooit groter dan horizontale
+    bdy = max(-abs(bdx) * 0.9, min(abs(bdx) * 0.9, bdy))
+
+    params.update(ball_x=bx, ball_y=by, ball_dx=bdx, ball_dy=bdy,
+                  left_y=ly, right_y=ry)
+
+    bxi = round(bx)
+    byi = round(by)
+
+    for i in range(NUM_KEYS):
+        col = i % 32
+        row = i // 32
+        if col >= COLS:
+            set_key(fd, i, 0, 0, 0)
+            continue
+        if col == bxi and row == byi:
+            set_key(fd, i, 255, 255, 255)           # bal: wit
+        elif col == PAD_L and abs(row - ly) < 1.5:
+            set_key(fd, i, 0, 180, 255)             # links: cyaanblauw
+        elif col == PAD_R and abs(row - ry) < 1.5:
+            set_key(fd, i, 255, 100, 0)             # rechts: oranje
+        else:
+            set_key(fd, i, 0, 0, 0)
+    commit(fd)
+
+
 ANIMATIONS = {
     'rainbow': apply_rainbow,
     'wave':    apply_wave,
     'matrix':  apply_matrix,
+    'pong':    apply_pong,
 }
 
 # --- State ---------------------------------------------------------------

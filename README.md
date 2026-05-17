@@ -64,6 +64,7 @@ De richting (`--reverse`) wordt opgeslagen en blijft actief totdat je hem explic
 | `rainbow` | Horizontale regenboog: elke kolom krijgt een andere tint uit het HSV-spectrum. De kleuren verschuiven één kolom per stap. |
 | `wave` | Sinusgolf van helderheid over de kolommen. De basiskleur wordt overgenomen van de staat op het moment dat de animatie start (stel in met `solid` of `color`). |
 | `matrix` | Vallende groene druppels, één per kolom. Elke druppel heeft een eigen willekeurige snelheid. Kop is helder wit-groen, staart vervaagt naar donkergroen. `--reverse` laat de druppels omhoog bewegen. |
+| `pong` | Pong-simulatie over het volledige toetsenbord (20×6). Cyaanblauw batje links (kolom 0), oranje batje rechts (kolom 19), wit balletje. Beide batjes worden bestuurd door een AI die de bal volgt met beperkte snelheid. Het balletje kaatst af op de wanden en batjes; de hoek verandert afhankelijk van het raakpunt. |
 
 ### Basiskleur instellen voor wave
 
