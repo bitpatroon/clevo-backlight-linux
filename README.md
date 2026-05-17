@@ -95,19 +95,23 @@ De functie ontvangt `params` met minimaal `phase` (float 0–1, stap 1/20 per aa
 `clevo_animate.py` roept automatisch `animate` aan met een vaste interval. Hij loopt alleen door als er een actieve animatie in de state staat — bij `off`, `solid` of `color` pauzeert hij vanzelf.
 
 ```bash
-sudo python3 clevo_animate.py                   # standaard 200ms per stap
-sudo python3 clevo_animate.py --interval 500    # 500ms per stap
+sudo python3 clevo_animate.py                       # standaard 200ms per stap
+sudo python3 clevo_animate.py --interval 500        # 500ms per stap
+sudo python3 clevo_animate.py --idle-timeout 180    # idle-timeout in seconden (standaard: 180)
+sudo python3 clevo_animate.py --idle-timeout 0      # idle-timeout uitschakelen
 sudo python3 clevo_animate.py --dev /dev/hidrawN
 ```
 
 ### Als systemd-service
 
 ```bash
-sudo bash install.sh                        # installeer met standaard 200ms
-sudo bash install.sh --interval 300         # andere interval
+sudo bash install.sh                                        # standaard 200ms, 3 min idle
+sudo bash install.sh --interval 300                         # andere interval
+sudo bash install.sh --idle-timeout 300                     # 5 minuten idle-timeout
+sudo bash install.sh --idle-timeout 0                       # idle-timeout uitschakelen
 sudo bash install.sh --interval 200 --dev /dev/hidrawN
 
-sudo bash uninstall.sh                      # verwijder service
+sudo bash uninstall.sh                                      # verwijder service
 ```
 
 De service start automatisch mee bij opstarten. De daemon bewaakt de state en gedraagt zich als volgt:
@@ -117,8 +121,14 @@ De service start automatisch mee bij opstarten. De daemon bewaakt de state en ge
 | Animatie actief | Elke tick `animate` aanroepen |
 | Animatie zojuist gestopt | Eénmalig `reload` uitvoeren (herstelt de vorige staat) |
 | Geen animatie | Niets doen, gewoon wachten |
+| Idle (geen input gedurende timeout) | Backlight uitzetten zonder state te wijzigen |
+| Eerste invoer na idle | `reload` uitvoeren — herstelt exacte vorige staat |
 
 Zo wordt bij `off` het backlight uit gezet zodra de animatie stopt, en bij `solid blue` keert de blauwe kleur terug.
+
+### Idle-timeout
+
+De daemon luistert via `/dev/input/event*` naar toetsenbord- en muisactiviteit. Na de ingestelde tijd zonder invoer (standaard 3 minuten) gaat het backlight uit. Bij de eerste toetsaanslag of muisbeweging wordt de vorige staat exact hersteld — inclusief animaties, zones en per-toets kleuren.
 
 Handige commando's na installatie:
 
