@@ -18,11 +18,59 @@ sudo python3 clevo_backlight.py brightness 128          # helderheid (0-255)
 sudo python3 clevo_backlight.py key W 255 0 0           # één toets op kleur (naam of index)
 sudo python3 clevo_backlight.py zone gaming green       # zone op voorinstelling
 sudo python3 clevo_backlight.py zone left 255 128 0     # zone op RGB
+sudo python3 clevo_backlight.py animate rainbow         # animatie toepassen
 sudo python3 clevo_backlight.py reload                  # herstel laatste opgeslagen state
 sudo python3 clevo_backlight.py --dev /dev/hidraw5 color green  # ander device
 ```
 
 **Voorinstelling kleuren:** `red`, `green`, `blue`, `white`, `yellow`, `cyan`, `magenta`, `orange`, `purple`
+
+## Animatie-daemon
+
+`clevo_animate.py` roept automatisch `animate` aan met een vaste interval. Hij loopt alleen door als er een actieve animatie in de state staat — bij `off`, `solid` of `color` pauzeert hij vanzelf.
+
+```bash
+sudo python3 clevo_animate.py                   # standaard 200ms per stap
+sudo python3 clevo_animate.py --interval 500    # 500ms per stap
+sudo python3 clevo_animate.py --dev /dev/hidrawN
+```
+
+### Als systemd-service
+
+```bash
+sudo bash install.sh                        # installeer met standaard 200ms
+sudo bash install.sh --interval 300         # andere interval
+sudo bash install.sh --interval 200 --dev /dev/hidrawN
+
+sudo bash uninstall.sh                      # verwijder service
+```
+
+De service start automatisch mee bij opstarten. De daemon bewaakt de state en gedraagt zich als volgt:
+
+| Toestand | Actie |
+|---|---|
+| Animatie actief | Elke tick `animate` aanroepen |
+| Animatie zojuist gestopt | Eénmalig `reload` uitvoeren (herstelt de vorige staat) |
+| Geen animatie | Niets doen, gewoon wachten |
+
+Zo wordt bij `off` het backlight uit gezet zodra de animatie stopt, en bij `solid blue` keert de blauwe kleur terug.
+
+Handige commando's na installatie:
+
+```bash
+systemctl status clevo-animate
+journalctl -u clevo-animate -f
+systemctl stop clevo-animate
+systemctl start clevo-animate
+```
+
+Workflow:
+
+```bash
+sudo python3 clevo_backlight.py animate rainbow  # animatie activeren
+# daemon pikt dit op bij de volgende tick
+sudo python3 clevo_backlight.py off              # daemon pauzeert vanzelf
+```
 
 ## Shell-aliassen
 

@@ -9,6 +9,7 @@ Usage:
   clevo_backlight.py brightness <0-255>             # helderheid (schaalt de RGB-waarden)
   clevo_backlight.py key <naam|idx> <R> <G> <B>    # één toets op kleur
   clevo_backlight.py zone <zone> <naam|R> [G B]    # zone op kleur (left/middle/right)
+  clevo_backlight.py animate [<naam>]                # animatie toepassen; zonder naam: volgende stap van huidige animatie
   clevo_backlight.py reload                         # herstel laatste opgeslagen state
 
 Optie:
@@ -21,7 +22,7 @@ Key-namen staan in mapping.json, zones in zones.json (zie README-keymappings.md)
 Het commit-byte van de ITE-chip werkt alleen als aan/uit-schakelaar (0=uit, 0xFF=aan).
 Dimmen werkt door de RGB-waarden te schalen met het brightness-niveau.
 """
-import fcntl, sys, os, json
+import fcntl, sys, os, json, colorsys
 
 HIDRAW_DEFAULT = '/dev/hidraw4'
 SCRIPT_DIR     = os.path.dirname(os.path.abspath(__file__))
@@ -48,6 +49,8 @@ DEFAULT_STATE = {
     'default_color': [0, 0, 255],
     'keys':          {},
     'zones':         {},
+    'preset':        None,
+    'preset_params': {},
 }
 
 # --- HID -----------------------------------------------------------------
@@ -68,6 +71,20 @@ def set_all(fd, r, g, b, on=True):
     for i in range(NUM_KEYS):
         set_key(fd, i, r, g, b)
     commit(fd, on)
+
+def apply_rainbow(fd, params=None):
+    # Kolompositie = index % 32 (0-19 zijn zichtbare toetsen per rij)
+    # Hue verdeelt de volle regenboog over 20 kolommen; phase schuift de positie op
+    phase = (params or {}).get('phase', 0.0)
+    for i in range(NUM_KEYS):
+        hue = ((i % 32) / 20.0 + phase) % 1.0
+        r, g, b = colorsys.hsv_to_rgb(hue, 1.0, 1.0)
+        set_key(fd, i, int(r * 255), int(g * 255), int(b * 255))
+    commit(fd)
+
+ANIMATIONS = {
+    'rainbow': apply_rainbow,
+}
 
 # --- State ---------------------------------------------------------------
 
@@ -165,6 +182,8 @@ def main():
             state['color'] = [r, g, b]
             state['keys'] = {}
             state['zones'] = {}
+            state['preset'] = None
+            state['preset_params'] = {}
             save_state(state)
             set_all(fd, r, g, b)
 
@@ -177,6 +196,8 @@ def main():
             state['color'] = [r, g, b]
             state['keys'] = {}
             state['zones'] = {}
+            state['preset'] = None
+            state['preset_params'] = {}
             save_state(state)
             set_all(fd, r, g, b)
 
@@ -186,6 +207,8 @@ def main():
             state['color'] = [0, 0, 0]
             state['keys'] = {}
             state['zones'] = {}
+            state['preset'] = None
+            state['preset_params'] = {}
             save_state(state)
 
         elif cmd == 'brightness':
@@ -245,25 +268,51 @@ def main():
             state['zones'][zone_name] = [r, g, b]
             save_state(state)
 
+        elif cmd == 'animate':
+            state = load_state()
+            if len(args) == 1:
+                name = state.get('preset')
+                if name not in ANIMATIONS:
+                    print(f"Geen actieve animatie. Gebruik: animate <naam>. Kies uit: {', '.join(ANIMATIONS)}")
+                    sys.exit(1)
+            elif args[1] not in ANIMATIONS:
+                print(f"Onbekende animatie. Kies uit: {', '.join(ANIMATIONS)}")
+                sys.exit(1)
+            else:
+                name = args[1]
+            params = state.get('preset_params', {}) if state.get('preset') == name else {}
+            params = dict(params)
+            params['phase'] = (params.get('phase', 0.0) + 1 / 20) % 1.0
+            ANIMATIONS[name](fd, params)
+            state['color'] = [0, 0, 0]
+            state['keys'] = {}
+            state['zones'] = {}
+            state['preset'] = name
+            state['preset_params'] = params
+            save_state(state)
+
         elif cmd == 'reload':
             state = load_state()
-            mapping = load_mapping()
-            zones = load_zones()
-            r, g, b = state['color']
-            factor = state['brightness'] / 255.0
-            br, bg, bb = int(r * factor), int(g * factor), int(b * factor)
-            for i in range(NUM_KEYS):
-                set_key(fd, i, br, bg, bb)
-            for zone_name, (zr, zg, zb) in state.get('zones', {}).items():
-                if zone_name not in zones:
-                    continue
-                for key_name in zones[zone_name]:
+            if state.get('preset') in ANIMATIONS:
+                ANIMATIONS[state['preset']](fd, state.get('preset_params', {}))
+            else:
+                mapping = load_mapping()
+                zones = load_zones()
+                r, g, b = state['color']
+                factor = state['brightness'] / 255.0
+                br, bg, bb = int(r * factor), int(g * factor), int(b * factor)
+                for i in range(NUM_KEYS):
+                    set_key(fd, i, br, bg, bb)
+                for zone_name, (zr, zg, zb) in state.get('zones', {}).items():
+                    if zone_name not in zones:
+                        continue
+                    for key_name in zones[zone_name]:
+                        for idx in mapping.get(key_name.upper(), []):
+                            set_key(fd, idx, zr, zg, zb)
+                for key_name, (kr, kg, kb) in state.get('keys', {}).items():
                     for idx in mapping.get(key_name.upper(), []):
-                        set_key(fd, idx, zr, zg, zb)
-            for key_name, (kr, kg, kb) in state.get('keys', {}).items():
-                for idx in mapping.get(key_name.upper(), []):
-                    set_key(fd, idx, kr, kg, kb)
-            commit(fd)
+                        set_key(fd, idx, kr, kg, kb)
+                commit(fd)
 
         else:
             print(f"Onbekend commando: {cmd}")
