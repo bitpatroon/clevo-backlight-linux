@@ -47,6 +47,69 @@ Geldige toetsindices: **0–191** (192 toetsen totaal). Indices 192–255 hebben
 HIDIOCSFEATURE(n) = (3 << 30) | (n << 16) | (ord('H') << 8) | 6
 ```
 
+## Configuratiebestanden
+
+### mapping.json
+
+Koppelt key-namen aan één of meer LED-indices. Alle namen zijn hoofdletters.
+
+```json
+{
+  "W":         [67],
+  "ENTER":     [110, 111],
+  "SPACE":     [165, 166, 168, 169]
+}
+```
+
+Toetsen die fysiek meerdere LED's beslaan (TAB, CAPS, ENTER, SHIFT, SPACE, RCTRL, LCTRL, KP_PLUS, KP_ENTER) hebben meerdere indices — bij een `key`-commando worden ze allemaal tegelijk gezet. Zie `README-keymappings.md` voor de volledige naamconventie.
+
+Indices 0–191 zijn geldig. Indices zonder naam (20–31, 52–63, 79, enz.) zijn onbekend of ongebruikt en zijn direct via numerieke index benaderbaar:
+
+```bash
+sudo python3 clevo_backlight.py key 20 255 255 0
+```
+
+### zones.json
+
+Definieert zones als lijsten van key-namen. Beschikbare zones: `left`, `middle`, `right`, `numpad`.
+
+```json
+{
+  "left":   ["ESC", "F1", ..., "LCTRL", "FN", "WIN", "ALT"],
+  "middle": ["F5", ..., "SPACE"],
+  "right":  ["F9", ..., "KP_DOT"]
+}
+```
+
+Zones worden gebruikt met het `zone`-commando:
+
+```bash
+sudo python3 clevo_backlight.py zone left red
+sudo python3 clevo_backlight.py zone right 0 255 128
+```
+
+### clevo_backlight.json
+
+Persistente state, opgeslagen naast het script. Wordt automatisch aangemaakt en bijgewerkt na elk commando.
+
+```json
+{
+  "color":         [0, 0, 255],
+  "brightness":    255,
+  "default_color": [0, 0, 255],
+  "keys": {
+    "W": [255, 0, 0],
+    "A": [255, 255, 0]
+  },
+  "zones": {
+    "left":   [255, 0, 0],
+    "middle": [255, 255, 255]
+  }
+}
+```
+
+`brightness` heeft geen directe hardware-waarde — het ITE-chip commit-byte kent alleen aan (0xFF) en uit (0x00). Dimmen werkt door de RGB-waarden te schalen met `brightness / 255`.
+
 ## License
 
 GPL v2+
