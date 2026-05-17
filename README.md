@@ -113,8 +113,17 @@ Beschikbare zones:
 | `left` | ESC, F1–F4, cijferrij 1–4, QWER, ASDF, ZXCV, LCTRL/FN/WIN/ALT |
 | `middle` | F5–F8, cijferrij 5–8, TYUI, GHJK, VBNM, SPACE |
 | `right` | F9–F12, navigatieblok, cijferrij 9–0, PUIOP-rij, L-rij, numpad, pijltjes |
-| `numpad` | NUMLK, KP_SLASH, KP_MUL, KP_MINUS, KP7–KP9, KP_PLUS, KP4–KP6, KP1–KP3, KP_ENTER, KP0, KP_DOT |
-| `gaming` | TAB, QWER, ASDF, ZXCV, LSHIFT, LCTRL, ALT, SPACE, N1–N5, CAPS, G |
+| `numpad` | NUMLK, KP_SLASH/MUL/MINUS, KP7–KP9, KP_PLUS, KP4–KP6, KP1–KP3, KP_ENTER, KP0, KP_DOT |
+| `gaming` | TAB, QWER, ASDF, ZXCV, LSHIFT, LCTRL, ALT, SPACE, N1–N5, CAPS, G, pijltjes |
+| `arrow` | WASD, pijltjes, KP2/4/6/8 |
+| `functions` | F1–F12 |
+| `special` | PRTSC, INS, DEL, HOME, END, PGUP, PGDN |
+| `row1` | ESC, F1–F12, PRTSC, INS, DEL, HOME, END, PGUP, PGDN |
+| `row2` | GRAVE, N1–N0, MINUS, EQUALS, BACKSPACE, NUMLK, KP_SLASH/MUL/MINUS |
+| `row3` | TAB, Q–P, LBRACKET, RBRACKET, BACKSLASH, KP7–KP9, KP_PLUS |
+| `row4` | CAPS, A–L, SEMICOLON, QUOTE, ENTER, KP4–KP6 |
+| `row5` | LSHIFT, Z–M, COMMA, DOT, SLASH, RSHIFT, UP, KP1–KP3, KP_ENTER |
+| `row6` | LCTRL, FN, WIN, ALT, SPACE, ALTGR, MENU, RCTRL, LEFT, DOWN, RIGHT, KP0, KP_DOT |
 
 ### clevo_backlight.json
 

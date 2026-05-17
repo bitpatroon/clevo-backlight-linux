@@ -63,5 +63,39 @@
 
   "special": [
     "PRTSC", "INS", "DEL", "HOME", "END", "PGUP", "PGDN"
+  ],
+
+  "row1": [
+    "ESC", "F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9", "F10", "F11", "F12",
+    "PRTSC", "INS", "DEL", "HOME", "END", "PGUP", "PGDN"
+  ],
+
+  "row2": [
+    "GRAVE", "N1", "N2", "N3", "N4", "N5", "N6", "N7", "N8", "N9", "N0",
+    "MINUS", "EQUALS", "BACKSPACE",
+    "NUMLK", "KP_SLASH", "KP_MUL", "KP_MINUS"
+  ],
+
+  "row3": [
+    "TAB", "Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P",
+    "LBRACKET", "RBRACKET", "BACKSLASH",
+    "KP7", "KP8", "KP9", "KP_PLUS"
+  ],
+
+  "row4": [
+    "CAPS", "A", "S", "D", "F", "G", "H", "J", "K", "L",
+    "SEMICOLON", "QUOTE", "ENTER",
+    "KP4", "KP5", "KP6"
+  ],
+
+  "row5": [
+    "LSHIFT", "Z", "X", "C", "V", "B", "N", "M",
+    "COMMA", "DOT", "SLASH", "RSHIFT", "UP",
+    "KP1", "KP2", "KP3", "KP_ENTER"
+  ],
+
+  "row6": [
+    "LCTRL", "FN", "WIN", "ALT", "SPACE", "ALTGR", "MENU", "RCTRL",
+    "LEFT", "DOWN", "RIGHT", "KP0", "KP_DOT"
   ]
 }
