@@ -1,0 +1,181 @@
+key 000: ESC
+key 001: F1
+key 002: F2  
+key 003: F3
+key 004: F4
+key 005: F5
+key 006: F6
+key 007: F7
+key 008: F8
+key 009: F9
+key 010: F10
+key 011: F11
+key 012: F12
+key 013: PRINT SCREEN
+key 014: INSERT
+key 015: DELETE
+key 016: HOME
+key 017: END
+key 018: PGUP
+key 019: PGDN
+key 020: -
+key 021: -
+key 022:-
+key 023:-
+key 024:-
+key 025:-
+key 026:-
+key 027:-
+key 028:-
+key 029:-
+key 030:-
+key 031:-
+key 032: `
+key 033: 1
+key 034: 2
+key 035: 3
+key 036: 4
+key 037: 5
+key 038: 6
+key 039: 7
+key 040: 8
+key 041: 9
+key 042: 0
+key 043: -
+key 044:
+key 045: =
+key 046: BACKSPACE links
+key 047: BACKSPACE rechts
+key 048: NUMLOCK
+key 049: KEYPAD / 
+key 050: KEYPAD * 
+key 051: KEYPAD -
+key 052: -
+key 053:-
+key 054:-
+key 055:-
+key 056:-
+key 057:-
+key 058:-
+key 059:-
+key 060:-
+key 061:-
+key 062:-
+key 063:-
+key 064: TABL
+key 065: TABR
+key 066: q
+key 067: w
+key 068: e
+key 069: r
+key 070: t
+key 071: y
+key 072: u
+key 073: i
+key 074: o
+key 075: p
+key 076: [
+key 077: ]
+key 078: \
+key 079:-
+key 080: NUMPAD 7
+key 081: NUMPAD 8
+key 082: NUMPAD 9
+key 083: NUMPAD + (BOVEN)
+key 084:-
+key 085:-
+key 086:-
+key 087:-
+key 088:-
+key 089:-
+key 090:-
+key 091:-
+key 092:-
+key 093:-
+key 094:-
+key 095:-
+key 096: CAPSL
+key 097: CASLR
+key 098: A
+key 099: S
+key 100: D
+key 101: F
+key 102: G
+key 103: H
+key 104: J
+key 105: K
+key 106: L
+key 107: ;
+key 108: '
+key 109:-
+key 110: ENTER L
+key 111: ENTER R
+key 112: NUMPAD 4
+key 113: NUMPAD 5
+key 114: NUMPAD 6
+key 115: NUMPAD + (ONDER)
+key 116: -
+key 117:-
+key 118:-
+key 119:-
+key 120:-
+key 121:-
+key 122:-
+key 123:-
+key 124:-
+key 125:-
+key 126:-
+key 127:-
+key 128: LEFT SHIFT L
+key 129: 
+key 130: LEFT SHIFT R
+key 131: Z
+key 132: X 
+key 133: C
+key 134: V 
+key 135: B
+key 136: N
+key 137: M
+key 138: ,
+key 139: .
+key 140: /
+key 141: RIGHT SHIFT L
+key 142: RIGHT SHIFT R
+key 143: ARROW UP
+key 144: NUMPAD 1
+key 145: NUMPAD 2
+key 146: NUMPAD 3
+key 147: NUMPAD ENTER (UP)
+key 148:- 
+key 149:-
+key 150:-
+key 151:-
+key 152:-
+key 153:-
+key 154:-
+key 155:-
+key 156:-
+key 157:-
+key 158:-
+key 159:-
+key 160: LEFT CTRL L
+key 161: LEFT CTRL R 
+key 162: FN
+key 163: WINDOWS
+key 164: ALT
+key 165: SPACE L1
+key 166: SPACE L2
+key 167:-
+key 168: SPACE R1
+key 169: SPACE R2
+key 170: ALT GR
+key 171: SUBMENU
+key 172: RIGHT CTRL L
+key 173: RIGHT CTRL R
+key 174: ARROW LEFT
+key 175: ARROW DOWN
+key 176: ARROW RIGHT
+key 177: NUMPAD 0
+key 178: NUMPAD .
+key 179: NUMPAD ENTER (ONDER)
+

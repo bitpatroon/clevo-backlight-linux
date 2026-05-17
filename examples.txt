@@ -1,0 +1,6 @@
+sudo python3 clevo_backlight.py solid 10 10 10
+sudo python3 clevo_backlight.py solid 100 100 100 
+sudo python3 clevo_backlight.py color green
+sudo python3 clevo_backlight.py color red
+sudo python3 clevo_backlight.py color blue
+

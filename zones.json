@@ -1,0 +1,51 @@
+{
+  "_comment": "Zone-definities als lijsten van key-namen (zie mapping.json / README-keymappings.md).",
+
+  "left": [
+    "ESC", "F1", "F2", "F3", "F4",
+    "GRAVE", "N1", "N2", "N3", "N4",
+    "TAB", "Q", "W", "E", "R",
+    "CAPS", "A", "S", "D", "F",
+    "LSHIFT", "Z", "X", "C",
+    "LCTRL", "FN", "WIN", "ALT"
+  ],
+
+  "middle": [
+    "F5", "F6", "F7", "F8",
+    "N5", "N6", "N7", "N8",
+    "T", "Y", "U", "I",
+    "G", "H", "J", "K",
+    "V", "B", "N", "M",
+    "SPACE"
+  ],
+
+  "right": [
+    "F9", "F10", "F11", "F12",
+    "PRTSC", "INS", "DEL", "HOME", "END", "PGUP", "PGDN",
+    "N9", "N0", "MINUS", "EQUALS", "BACKSPACE",
+    "NUMLK", "KP_SLASH", "KP_MUL", "KP_MINUS",
+    "O", "P", "LBRACKET", "RBRACKET", "BACKSLASH",
+    "KP7", "KP8", "KP9", "KP_PLUS",
+    "L", "SEMICOLON", "QUOTE", "ENTER",
+    "KP4", "KP5", "KP6",
+    "COMMA", "DOT", "SLASH", "RSHIFT", "UP",
+    "KP1", "KP2", "KP3", "KP_ENTER",
+    "ALTGR", "MENU", "RCTRL", "LEFT", "DOWN", "RIGHT",
+    "KP0", "KP_DOT"
+  ],
+
+  "numpad": [
+    "F9", "F10", "F11", "F12",
+    "PRTSC", "INS", "DEL", "HOME", "END", "PGUP", "PGDN",
+    "N9", "N0", "MINUS", "EQUALS", "BACKSPACE",
+    "NUMLK", "KP_SLASH", "KP_MUL", "KP_MINUS",
+    "O", "P", "LBRACKET", "RBRACKET", "BACKSLASH",
+    "KP7", "KP8", "KP9", "KP_PLUS",
+    "L", "SEMICOLON", "QUOTE", "ENTER",
+    "KP4", "KP5", "KP6",
+    "COMMA", "DOT", "SLASH", "RSHIFT", "UP",
+    "KP1", "KP2", "KP3", "KP_ENTER",
+    "ALTGR", "MENU", "RCTRL", "LEFT", "DOWN", "RIGHT",
+    "KP0", "KP_DOT"
+  ]
+}
