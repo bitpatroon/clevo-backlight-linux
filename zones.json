@@ -35,17 +35,18 @@
   ],
 
   "numpad": [
-    "F9", "F10", "F11", "F12",
-    "PRTSC", "INS", "DEL", "HOME", "END", "PGUP", "PGDN",
-    "N9", "N0", "MINUS", "EQUALS", "BACKSPACE",
     "NUMLK", "KP_SLASH", "KP_MUL", "KP_MINUS",
-    "O", "P", "LBRACKET", "RBRACKET", "BACKSLASH",
     "KP7", "KP8", "KP9", "KP_PLUS",
-    "L", "SEMICOLON", "QUOTE", "ENTER",
     "KP4", "KP5", "KP6",
-    "COMMA", "DOT", "SLASH", "RSHIFT", "UP",
     "KP1", "KP2", "KP3", "KP_ENTER",
-    "ALTGR", "MENU", "RCTRL", "LEFT", "DOWN", "RIGHT",
     "KP0", "KP_DOT"
+  ],
+
+  "gaming": [
+    "TAB", "Q", "W", "E", "R",
+    "CAPS", "A", "S", "D", "F", "G",
+    "LSHIFT", "Z", "X", "C", "V",
+    "LCTRL", "ALT", "SPACE",
+    "N1", "N2", "N3", "N4", "N5"
   ]
 }

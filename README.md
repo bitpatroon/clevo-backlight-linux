@@ -71,22 +71,22 @@ sudo python3 clevo_backlight.py key 20 255 255 0
 
 ### zones.json
 
-Definieert zones als lijsten van key-namen. Beschikbare zones: `left`, `middle`, `right`, `numpad`.
-
-```json
-{
-  "left":   ["ESC", "F1", ..., "LCTRL", "FN", "WIN", "ALT"],
-  "middle": ["F5", ..., "SPACE"],
-  "right":  ["F9", ..., "KP_DOT"]
-}
-```
-
-Zones worden gebruikt met het `zone`-commando:
+Definieert zones als lijsten van key-namen. Zones worden gebruikt met het `zone`-commando:
 
 ```bash
 sudo python3 clevo_backlight.py zone left red
-sudo python3 clevo_backlight.py zone right 0 255 128
+sudo python3 clevo_backlight.py zone gaming 255 0 0
 ```
+
+Beschikbare zones:
+
+| Zone | Inhoud |
+|---|---|
+| `left` | ESC, F1–F4, cijferrij 1–4, QWER, ASDF, ZXCV, LCTRL/FN/WIN/ALT |
+| `middle` | F5–F8, cijferrij 5–8, TYUI, GHJK, VBNM, SPACE |
+| `right` | F9–F12, navigatieblok, cijferrij 9–0, PUIOP-rij, L-rij, numpad, pijltjes |
+| `numpad` | NUMLK, KP_SLASH, KP_MUL, KP_MINUS, KP7–KP9, KP_PLUS, KP4–KP6, KP1–KP3, KP_ENTER, KP0, KP_DOT |
+| `gaming` | TAB, QWER, ASDF, ZXCV, LSHIFT, LCTRL, ALT, SPACE, N1–N5, CAPS, G |
 
 ### clevo_backlight.json
 
