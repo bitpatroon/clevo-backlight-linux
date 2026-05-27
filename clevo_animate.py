@@ -86,6 +86,8 @@ def main():
     last_activity = time.time()
     input_fds     = open_input_devices() if idle_timeout > 0 else []
 
+    subprocess.run([sys.executable, BACKLIGHT] + dev_args + ['reload'], check=False)
+
     while running:
         if idle_timeout > 0:
             if drain_input(input_fds):
